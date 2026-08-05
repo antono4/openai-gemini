@@ -127,10 +127,41 @@ To use the **web search** tool, append ":search" to the model name
 Note: The `annotations` message property is not implemented.
 
 
+## Error Handling
+
+The proxy returns structured error responses compatible with the OpenAI API format:
+
+```json
+{
+  "error": {
+    "message": "Error description",
+    "type": "validation_error",
+    "code": "invalid_request_error"
+  }
+}
+```
+
+Error types include:
+- `validation_error` (400) - Invalid request parameters
+- `authentication_error` (401) - Invalid API key
+- `rate_limit_error` (429) - Rate limit exceeded
+- `gemini_api_error` (502) - Gemini API errors
+- `server_error` (500) - Internal server errors
+
+
 ## Media
 
 [Vision] and [audio] input supported as per OpenAI [specs].
 Implemented via [`inlineData`](https://ai.google.dev/api/caching#Part).
+
+
+## Testing
+
+Run unit tests to verify the implementation:
+
+```bash
+node test/worker.test.mjs
+```
 
 [vision]: https://platform.openai.com/docs/guides/images-vision?api-mode=chat&format=url#giving-a-model-images-as-input
 [audio]: https://platform.openai.com/docs/guides/audio?example=audio-in&lang=curl#add-audio-to-your-existing-application
@@ -184,11 +215,14 @@ For more details, refer to the [Gemini API docs](https://ai.google.dev/gemini-ap
   - [x] `top_p`
   - [x] `tools`
   - [x] `tool_choice`
-  - [ ] `parallel_tool_calls` (is always active in Gemini)
+  - [x] `parallel_tool_calls` (is always active in Gemini, warning logged if set to false)
   - [x] [`extra_body`](#gemini-specific-functions)
 
   </details>
-- [ ] `completions`
+- [x] `completions`
+  - Legacy completions endpoint for backward compatibility
+  - Transforms prompt to messages format automatically
+  - Supports streaming with `text_completion.chunk` response format
 - [x] `embeddings`
   - [x] `dimensions`
 - [x] `models`
