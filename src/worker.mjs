@@ -1,4 +1,19 @@
 import { Buffer } from "node:buffer";
+import { handleLegacyCompletions } from "./completions.mjs";
+
+// Named exports for testing
+export {
+  HttpError,
+  ValidationError,
+  AuthenticationError,
+  RateLimitError,
+  GeminiApiError,
+  DEFAULT_MODEL,
+  DEFAULT_EMBEDDINGS_MODEL,
+  BASE_URL,
+  API_VERSION,
+  generateId,
+};
 
 export default {
   async fetch (request) {
@@ -7,28 +22,45 @@ export default {
     }
     const errHandler = (err) => {
       console.error(err);
-      return new Response(err.message, fixCors({ status: err.status ?? 500 }));
+      const status = err.status ?? 500;
+      const errorResponse = {
+        error: {
+          message: err.message || "An unexpected error occurred",
+          type: err.type || "server_error",
+          code: err.code || (status === 400 ? "invalid_request_error" : undefined),
+        }
+      };
+      return new Response(JSON.stringify(errorResponse), fixCors({ 
+        status,
+        headers: { "Content-Type": "application/json" }
+      }));
     };
     try {
       const auth = request.headers.get("Authorization");
       const apiKey = auth?.split(" ")[1];
-      const assert = (success) => {
+      const assert = (success, status = 400) => {
         if (!success) {
-          throw new HttpError("The specified HTTP method is not allowed for the requested resource", 400);
+          throw new HttpError("The specified HTTP method is not allowed for the requested resource", status);
         }
       };
       const { pathname } = new URL(request.url);
       switch (true) {
         case pathname.endsWith("/chat/completions"):
-          assert(request.method === "POST");
+          assert(request.method === "POST", 405);
           return handleCompletions(await request.json(), apiKey)
             .catch(errHandler);
+        case pathname.endsWith("/completions"):
+          assert(request.method === "POST", 405);
+          return handleLegacyCompletions(await request.json(), apiKey, {
+            makeHeaders, BASE_URL, API_VERSION, DEFAULT_MODEL, transformRequest,
+            transformUsage, generateId, reasonsMap, safety: { safetySettings }, fixCors, HttpError
+          }).catch(errHandler);
         case pathname.endsWith("/embeddings"):
-          assert(request.method === "POST");
+          assert(request.method === "POST", 405);
           return handleEmbeddings(await request.json(), apiKey)
             .catch(errHandler);
         case pathname.endsWith("/models"):
-          assert(request.method === "GET");
+          assert(request.method === "GET", 405);
           return handleModels(apiKey)
             .catch(errHandler);
         default:
@@ -41,10 +73,36 @@ export default {
 };
 
 class HttpError extends Error {
-  constructor(message, status) {
+  constructor(message, status, type = "error") {
     super(message);
     this.name = this.constructor.name;
     this.status = status;
+    this.type = type;
+  }
+}
+
+// Specific error types for better client handling
+class ValidationError extends HttpError {
+  constructor(message) {
+    super(message, 400, "validation_error");
+  }
+}
+
+class AuthenticationError extends HttpError {
+  constructor(message = "Invalid API key") {
+    super(message, 401, "authentication_error");
+  }
+}
+
+class RateLimitError extends HttpError {
+  constructor(message = "Rate limit exceeded") {
+    super(message, 429, "rate_limit_error");
+  }
+}
+
+class GeminiApiError extends HttpError {
+  constructor(message, status = 502) {
+    super(message, status, "gemini_api_error");
   }
 }
 
@@ -56,6 +114,7 @@ const fixCors = ({ headers, status, statusText }) => {
 
 const handleOPTIONS = async () => {
   return new Response(null, {
+    status: 204,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "*",
@@ -516,6 +575,11 @@ const transformTools = (req) => {
         }
       };
     }
+  }
+  // Note: parallel_tool_calls is always true in Gemini
+  // We expose it in the tool_config if explicitly requested
+  if (req.parallel_tool_calls === false) {
+    console.warn("parallel_tool_calls=false is not supported by Gemini, ignoring");
   }
   return { tools, tool_config };
 };
