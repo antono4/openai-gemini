@@ -1,88 +1,64 @@
-<!-- README ini dihasilkan otomatis oleh .github/workflows/generate-readme.yml -->
-<!-- Jangan edit manual: perubahan akan ditimpa pada run berikutnya. -->
+<!-- README ini dihasilkan otomatis oleh workflow .github/workflows/generate-readme.yml -->
+<!-- Jangan edit manual; perubahan akan ditim pada run berikutnya. -->
 
-<h1 align="center">openai-gemini 👋</h1>
+<h1 align="center">Project 👋</h1>
+
+<p align="center">
+  <strong></strong>
+</p>
 
 <p align="center">
   <a href="https://github.com/antono4/openai-gemini"><img alt="GitHub repo" src="https://img.shields.io/badge/GitHub-antono4/openai-gemini-blue?logo=github"></a>
-  <img alt="Files" src="https://img.shields.io/badge/Files-31-informational">
-  <img alt="Last commit" src="https://img.shields.io/github/last-commit/antono4/openai-gemini">
+  <a href="https://antono4.github.io/openai-gemini/"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-Online-success?logo=githubpages"></a>
+  <img alt="Files" src="https://img.shields.io/badge/Files-34-informational">
+  <img alt="Updated" src="https://img.shields.io/badge/Updated-2026-09-18 08:11:07 WIB-lightgrey">
 </p>
 
 ---
 
 ## 📖 Tentang
 
-Repository **`openai-gemini`** adalah proyek Node.js yang dibangun dengan HTML.
-GitHub Pages belum diaktifkan untuk repository ini.
+Repository **`openai-gemini`** adalah situs web pribadi / portofolio yang diterbitkan melalui **GitHub Pages**. Situs utama berada di [`https://antono4.github.io/openai-gemini/`](https://antono4.github.io/openai-gemini/).
 
 ## 🗂️ Struktur Proyek
 
 ```
 openai-gemini/
-.agents/
-  skills/
-.claude/
-  ecc-tools.json
-  homunculus/
-  identity.json
-  skills/
-.codex/
-  AGENTS.md
-  agents/
-  config.toml
-.editorconfig
-.github/
-  workflows/
-.gitignore
-LICENSE
-api/
-  handler.mjs
-bun.mjs
-deno.mjs
-netlify/
-netlify.toml
-  edge-functions/
-  functions/
-node.mjs
-package-lock.json
-package.json
-public/
-  empty.html
-src/
-  completions.mjs
-  worker.mjs
-test/
-  worker.test.mjs
-vercel.json
-wrangler.toml
+├── index.html          # Halaman utama (landing / portofolio)
+├── assets/             # Aset statis (css, js, img, vendor)
+├── forms/               # Form handler (PHP)
 ```
 
 ## 🛠️ Teknologi
 
-Berdasarkan ekstensi berkas yang terdeteksi di repository:
+Berdasarkan isi repository, proyek ini menggunakan:
 
 - `HTML`
 
-> Total **31 berkas** di repository (di luar `.git`, `node_modules`, `dist`, dan `build`).
+> Total **34 file** terdeteksi di repository.
 
 ## 🚀 Menjalankan Secara Lokal
 
-Butuh Node.js:
+Karena ini situs statis (HTML/CSS/JS/PHP), cukup buka `index.html` di browser, atau jalankan server lokal:
 
 ```bash
-npm install
-npm run dev
+# Tanpa dependency
+python3 -m http.server 8000
+# lalu buka http://localhost:8000
+
+# atau dengan PHP (untuk form handler di forms/)
+php -S localhost:8000
 ```
 
 ## 📬 Kontak
 
 - GitHub: [antono4](https://github.com/antono4)
+- Situs: [https://antono4.github.io/openai-gemini/](https://antono4.github.io/openai-gemini/)
 
 ## 📄 Lisensi
 
-Proyek ini dilisensikan di bawah MIT License — lihat berkas [`LICENSE`](./LICENSE).
+Lihat berkas [`LICENSE`](./LICENSE) untuk informasi lisensi.
 
 ---
 
-<sub>README ini di-generate otomatis oleh GitHub Actions `.github/workflows/generate-readme.yml`.</sub>
+<sub>README ini di-generate otomatis pada **2026-09-18 08:11:07 WIB** oleh GitHub Actions `.github/workflows/generate-readme.yml`.</sub>
